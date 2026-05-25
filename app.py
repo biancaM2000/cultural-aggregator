@@ -20,7 +20,7 @@ def get_db_connection():
             return conn
         except psycopg2.OperationalError:
             retries -= 1
-            print("Baza de date nu este gata încă. Reîncerc în 2 secunde...")
+            print("Baza de date nu este gata, incerc din nou in 2 secunde...")
             time.sleep(2)
     raise Exception("Nu s-a putut stabili conexiunea cu baza de date.")
 
@@ -36,7 +36,7 @@ def init_db():
             titlu VARCHAR(100) NOT NULL,
             oras VARCHAR(50) NOT NULL,
             data VARCHAR(50) NOT NULL,
-            locatie VARCHAR(100) NOT NULL
+            categorie VARCHAR(100) NOT NULL
         );
     ''')
     
@@ -51,7 +51,7 @@ def init_db():
         ]
         for ev in date_initiale:
             cur.execute(
-                'INSERT INTO evenimente (titlu, oras, data, locatie) VALUES (%s, %s, %s, %s);',
+                'INSERT INTO evenimente (titlu, oras, data, categorie) VALUES (%s, %s, %s, %s);',
                 ev
             )
     
