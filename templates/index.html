@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregator Evenimente Culturale</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 0; margin-bottom: 30px; border-radius: 0 0 20px 20px; }
+        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+
+    <div class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold">🎭 Agregator Cultural România</h1>
+            <p class="lead">Toate evenimentele tale preferate</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-6 offset-md-3">
+                <div class="card p-3">
+                    <form method="GET" action="/" class="d-flex gap-2">
+                        <select name="oras" class="form-select">
+                            <option value="">Toate orașele</option>
+                            <option value="Bucuresti">București</option>
+                            <option value="Cluj-Napoca">Cluj-Napoca</option>
+                            <option value="Timisoara">Timișoara</option>
+                            <option value="Iasi">Iași</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary px-4">Filtrează</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card p-4">
+                    <h3 class="mb-3 text-secondary">📅 Evenimente Disponibile</h3>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Titlu Eveniment</th>
+                                    <th>Oraș</th>
+                                    <th>Perioadă / Dată</th>
+                                    <th>Categorie</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ev in evenimente %}
+                                <tr>
+                                    <td>{{ ev.id }}</td>
+                                    <td class="fw-bold text-dark">{{ ev.titlu }}</td>
+                                    <td><span class="badge bg-info text-dark fw-semibold">{{ ev.oras }}</span></td>
+                                    <td>{{ ev.data }}</td>
+                                    <td><span class="badge bg-secondary">{{ ev.categorie }}</span></td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Nu s-au găsit evenimente pentru selecția făcută.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center my-5 text-muted">
+        <small>Proiect DevOps • Bianca Matei 2026</small>
+    </footer>
+
+</body>
+</html>

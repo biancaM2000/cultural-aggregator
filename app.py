@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -6,7 +6,6 @@ import time
 
 app = Flask(__name__)
 
-# conectare la baza de date cu retry logic pentru a astepta pana cand baza de date este gata sa accepte conexiuni
 def get_db_connection():
     retries = 5
     while retries > 0:
@@ -20,64 +19,71 @@ def get_db_connection():
             return conn
         except psycopg2.OperationalError:
             retries -= 1
-            print("Baza de date nu este gata, incerc din nou in 2 secunde...")
+            print("Baza de date nu este gata sau nu se poate conecta. Incearca din nou in 2 secunde...")
             time.sleep(2)
     raise Exception("Nu s-a putut stabili conexiunea cu baza de date.")
 
-# initializare baza de dare si creare tabela daca nu exista
 def init_db():
     conn = get_db_connection()
     cur = conn.cursor()
-    
-    # creare tabela evenimente daca nu exista deja
     cur.execute('''
         CREATE TABLE IF NOT EXISTS evenimente (
             id SERIAL PRIMARY KEY,
-            titlu VARCHAR(100) NOT NULL,
+            titlu VARCHAR(150) NOT NULL,
             oras VARCHAR(50) NOT NULL,
             data VARCHAR(50) NOT NULL,
-            categorie VARCHAR(100) NOT NULL
+            categorie VARCHAR(50) NOT NULL
         );
     ''')
     
-    # daca tabela este goala, inseram datele initiale
     cur.execute('SELECT COUNT(*) FROM evenimente;')
     if cur.fetchone()[0] == 0:
         date_initiale = [
-            ('Festivalul International de Film Transilvania (TIFF)', 'Cluj-Napoca', '29 Mai - 7 Iunie 2026', 'Piata Unirii'),
-            ('Concert Filarmonica George Enescu', 'Bucuresti', '30 Mai 2026', 'Ateneul Roman'),
-            ('Expozitie de Arta Contemporana', 'Timisoara', '1 Iunie 2026', 'Muzeul de Arta'),
-            ('Festivalul de Teatru de Strada', 'Iasi', '5 Iunie 2026', 'Palatul Culturii')
+            ('Festivalul International de Film Transilvania (TIFF)', 'Cluj-Napoca', 'Iunie 2026', 'Film'),
+            ('Concert special la Ateneul Roman', 'Bucuresti', '30 Mai 2026', 'Muzica Clasica'),
+            ('Expozitie de Arta Contemporana', 'Timisoara', 'Iunie 2026', 'Arta'),
+            ('Festivalul de Teatru Tanar', 'Iasi', 'Mai 2026', 'Teatru')
         ]
         for ev in date_initiale:
             cur.execute(
                 'INSERT INTO evenimente (titlu, oras, data, categorie) VALUES (%s, %s, %s, %s);',
                 ev
             )
-    
     conn.commit()
     cur.close()
     conn.close()
 
+# fornt end route   
 @app.route('/')
 def home():
-    return jsonify({
-        "status": "success",
-        "mesaj": "Bine ai venit la Agregatorul de Evenimente Culturale Romania v2 (cu baza de date)!"
-    })
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Filtrare optionala dupa oras
+    oras_filtru = request.args.get('oras')
+    if oras_filtru:
+        cur.execute('SELECT * FROM evenimente WHERE oras ILIKE %s ORDER BY id ASC;', (oras_filtru,))
+    else:
+        cur.execute('SELECT * FROM evenimente ORDER BY id ASC;')
+        
+    evenimente = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    # Trimitem datele direct in template pentru a fi afisate in HTML
+    return render_template('index.html', evenimente=evenimente)
 
+# ruta back-end pentru API-ul RESTful care returnează evenimentele în format JSON
 @app.route('/api/evenimente', methods=['GET'])
 def get_evenimente():
     conn = get_db_connection()
-    # dictionary cursor pentru a returna rezultatele ca liste de dictionare in loc de tuple
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    
-    # adaug filtrare dupa oras daca este specificat in query params
     oras_filtru = request.args.get('oras')
+    
     if oras_filtru:
         cur.execute('SELECT * FROM evenimente WHERE oras ILIKE %s;', (oras_filtru,))
     else:
-        cur.execute('SELECT * FROM evenimente;')
+        cur.execute('SELECT * FROM evenimente ORDER BY id ASC;')
         
     evenimente = cur.fetchall()
     cur.close()
