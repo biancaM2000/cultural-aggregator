@@ -1,0 +1,51 @@
+---
+- name: Configurare Server AWS pentru aplicatia Web
+  hosts: all
+  become: true
+  tasks:
+    - name: Actualizeaza cache-ul apt
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Instaleaza pachetele necesare pentru Docker
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        state: present
+
+    - name: Adauga cheia GPG oficiala Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Adauga repository-ul Docker
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable
+        state: present
+
+    - name: Instaleaza Docker Engine si Docker Compose
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+        update_cache: yes
+
+    - name: Asigura-te ca serviciul Docker este pornit si activat
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Adauga utilizatorul ubuntu in grupul docker
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
