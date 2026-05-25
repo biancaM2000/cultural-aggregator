@@ -1,9 +1,30 @@
 version: '3.8'
 
 services:
-  web-app:
+  # Serviciul pentru Flask
+  web:
     build: .
-    container_name: agregator_evenimente
     ports:
       - "5000:5000"
-    restart: always
+    environment:
+      - DB_HOST=db
+      - DB_NAME=cultural_db
+      - DB_USER=postgres
+      - DB_PASSWORD=devops_secret_2026
+    depends_on:
+      - db
+
+  # Serviciul nou pentru baza de date PostgreSQL
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=cultural_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=devops_secret_2026
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
