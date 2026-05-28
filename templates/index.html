@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agregator Evenimente Culturale</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; }
         .hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 0; margin-bottom: 30px; border-radius: 0 0 20px 20px; }
-        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .card { border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        #calendar { background: white; padding: 20px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -16,23 +18,50 @@
     <div class="hero-section text-center">
         <div class="container">
             <h1 class="display-4 fw-bold">🎭 Agregator Cultural România</h1>
-            <p class="lead">Toate evenimentele tale preferate</p>
+            <p class="lead">Toate evenimentele tale preferate dintr-un singur loc</p>
         </div>
     </div>
 
     <div class="container">
         <div class="row mb-4">
-            <div class="col-md-6 offset-md-3">
-                <div class="card p-3">
-                    <form method="GET" action="/" class="d-flex gap-2">
-                        <select name="oras" class="form-select">
-                            <option value="">Toate orașele</option>
-                            <option value="Bucuresti">București</option>
-                            <option value="Cluj-Napoca">Cluj-Napoca</option>
-                            <option value="Timisoara">Timișoara</option>
-                            <option value="Iasi">Iași</option>
-                        </select>
-                        <button type="submit" class="btn btn-primary px-4">Filtrează</button>
+            <div class="col-12">
+                <div class="card p-4 shadow-sm">
+                    <h5 class="mb-3 fw-bold text-secondary">🔍 Motor de căutare preferințe</h5>
+                    <form method="GET" action="/" class="row g-3">
+                        
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">ORAȘ</label>
+                            <select name="oras" class="form-select">
+                                <option value="">Toate orașele mari</option>
+                                <option value="Bucuresti">București</option>
+                                <option value="Cluj-Napoca">Cluj-Napoca</option>
+                                <option value="Timisoara">Timișoara</option>
+                                <option value="Iasi">Iași</option>
+                                <option value="Constanta">Constanța</option>
+                                <option value="Brasov">Brașov</option>
+                                <option value="Sibiu">Sibiu</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">DATA EVENIMENTULUI</label>
+                            <input type="date" name="data" class="form-control">
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-muted">CATEGORIE</label>
+                            <select name="categorie" class="form-select">
+                                <option value="">Toate categoriile</option>
+                                <option value="Concert">Concerte / Muzică</option>
+                                <option value="Teatru">Teatru / Spectacole</option>
+                                <option value="Divertisment">Divertisment / Stand-up</option>
+                                <option value="Festival / Cultura">Festivaluri / Cultură</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold py-2">Caută ➔</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -41,7 +70,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card p-4">
-                    <h3 class="mb-3 text-secondary">📅 Evenimente Disponibile</h3>
+                    <h3 class="mb-3 text-secondary">📅 Listă Evenimente Disponibile</h3>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-dark">
@@ -49,8 +78,10 @@
                                     <th>#</th>
                                     <th>Titlu Eveniment</th>
                                     <th>Oraș</th>
-                                    <th>Perioadă / Dată</th>
+                                    <th>Dată</th>
                                     <th>Categorie</th>
+                                    <th>Preț</th>
+                                    <th>Acțiuni</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -61,10 +92,14 @@
                                     <td><span class="badge bg-info text-dark fw-semibold">{{ ev.oras }}</span></td>
                                     <td>{{ ev.data }}</td>
                                     <td><span class="badge bg-secondary">{{ ev.categorie }}</span></td>
+                                    <td class="text-success fw-bold">{{ ev.pret }}</td>
+                                    <td>
+                                        <a href="{{ ev.link }}" target="_blank" class="btn btn-sm btn-outline-primary fw-semibold">🎟️ Cumpără Bilet</a>
+                                    </td>
                                 </tr>
                                 {% else %}
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">Nu s-au găsit evenimente pentru selecția făcută.</td>
+                                    <td colspan="7" class="text-center text-muted">Nu s-au găsit evenimente pentru selecția făcută.</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -73,11 +108,44 @@
                 </div>
             </div>
         </div>
+
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card p-4">
+                    <h3 class="mb-3 text-secondary">🗓️ Calendar Cultural Interactiv</h3>
+                    <div id="calendar"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <footer class="text-center my-5 text-muted">
-        <small>Proiect DevOps • Bianca Matei 2026</small>
+        <small>Proiect DevOps Final • Bianca M. 2026</small>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'ro',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                events: '/api/calendar-events',
+                eventClick: function(info) {
+                    // Dacă evenimentul are un URL valid în JSON, FullCalendar îl va deschide automat. 
+                    // Dezactivăm comportamentul implicit doar dacă vrem alert personalizat:
+                    if (info.event.url) {
+                        return true; 
+                    }
+                }
+            });
+            calendar.render();
+        });
+    </script>
 </body>
 </html>
