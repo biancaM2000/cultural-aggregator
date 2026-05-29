@@ -74,7 +74,6 @@ def get_evenimente_culturale():
         }
     ]
 
-# --- RUTELE FLASK (MOTOR DE CĂUTARE MULTI-FILTRU) ---
 
 @app.route('/')
 def index():
@@ -103,7 +102,7 @@ def index():
 def calendar_events():
     toate = get_evenimente_culturale()
     
-    # Permitem și calendarului să fie influențat de filtre dacă este cazul
+#Calendarul primeste doar filtrele de oras si categorie  
     oras_selectat = request.args.get('oras', '').strip()
     categorie_selectata = request.args.get('categorie', '').strip()
     
