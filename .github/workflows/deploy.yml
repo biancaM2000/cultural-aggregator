@@ -2,32 +2,30 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Deploy to AWS EC2 via SSH
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ubuntu
-        key: ${{ secrets.SSH_KEY }}
-        source: "app.py,Dockerfile,docker-compose.yml,requirements.txt"
-        target: "~/app/"
-
-    - name: Execute Docker Compose on Remote Server
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ubuntu
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          cd ~/app
-          docker compose down
-          docker compose up --build -d
+      - name: Deploy to AWS EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/app || mkdir -p ~/app && cd ~/app
+            # Stop and remove existing containers, ignoring errors if they don't exist
+            sudo docker compose down --remove-orphans || true
+            # Remove unused Docker images to free up space
+            sudo docker image prune -f
+            # Build and start the new containers
+            sudo docker compose up --build -d
+            # Check the status of the containers
+            sudo docker compose ps
