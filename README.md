@@ -61,7 +61,6 @@ Aplicatia ruleaza cu *Flask* (Python) in backend, *PostgreSQL* ca baza de date s
 
 ### Pasi
 
-bash
 # 1. Cloneaza repository-ul
 git clone <URL_REPO>
 cd cultural-aggregator
@@ -77,29 +76,24 @@ Aplicatia va fi disponibila la *http://localhost:5000* dupa ce ambele containere
 
 ### Oprire
 
-bash
 docker compose down
 
 
 Pentru a sterge si volumul cu datele bazei de date:
 
-bash
 docker compose down -v
 
 
 ### Verificare ca totul functioneaza
 
-bash
 # Verificare ca ambele containere ruleaza
 docker compose ps
 
 
 Ar trebui sa apara:
 
-text
 cultural-aggregator-web-1   Up   0.0.0.0:5000->5000/tcp
 cultural-aggregator-db-1    Up   5432/tcp
-
 
 ---
 
@@ -118,13 +112,10 @@ Terraform creeaza automat:
 
 ### Generare cheie SSH
 
-bash
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_proiect
-
 
 ### Comenzi Terraform
 
-bash
 cd terraform
 
 # Initializare provider AWS
@@ -139,7 +130,6 @@ terraform apply
 
 La final, Terraform afiseaza IP-ul public al serverului:
 
-text
 Outputs:
   server_ip = "X.X.X.X"
 
@@ -148,9 +138,7 @@ IP-ul din output este necesar in pasii urmatori pentru Ansible si pentru accesul
 
 ### Stergere infrastructura
 
-bash
 terraform destroy
-
 
 ---
 
@@ -174,7 +162,6 @@ server_cultural ansible_host=<IP_SERVER> ansible_user=ubuntu ansible_ssh_private
 
 ### Rulare playbook
 
-bash
 cd ansible
 
 ansible-playbook -i inventory.ini playbook.yml
@@ -191,7 +178,6 @@ Playbook-ul executa automat:
 
 ### Verificare
 
-bash
 ssh -i ~/.ssh/id_rsa_proiect ubuntu@<IP_SERVER> "docker --version && docker compose version"
 
 
@@ -216,7 +202,6 @@ Jenkins face deploy automat al aplicatiei pe serverul EC2 la fiecare build.
 
 ### Ce face pipeline-ul
 
-text
 Stage 1: Verificare cod local
    ls -la
 
@@ -229,7 +214,6 @@ Stage 3: Deploy pe EC2
    docker compose down
    docker image prune -f
    docker compose up --build -d
-
 
 ### Adaugare credentiale SSH in Jenkins
 
