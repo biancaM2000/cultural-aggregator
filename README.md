@@ -93,6 +93,7 @@ docker compose ps
 Ar trebui sa apara:
 
 cultural-aggregator-web-1   Up   0.0.0.0:5000->5000/tcp
+
 cultural-aggregator-db-1    Up   5432/tcp
 
 ---
